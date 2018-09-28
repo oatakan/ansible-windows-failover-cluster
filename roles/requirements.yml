@@ -12,4 +12,4 @@
   version: origin/master
 
 - src: https://github.com/oatakan/ansible-role-os-stack
-  version: origin/masternode-config
+  version: origin/master
