@@ -17,7 +17,6 @@
   win_reboot:
   when: item.reboot_required
   loop: "{{ install_features.results }}"
-  run_once: yes
 
 - name: ensure registry service is running
   win_dsc:
