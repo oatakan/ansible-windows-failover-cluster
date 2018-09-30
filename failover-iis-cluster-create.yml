@@ -6,16 +6,13 @@
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
   tasks:
-    - debug:
-        var: hostvars[inventory_hostname]
-
     - name: set ad server ip
       add_host:
         name: windows_ad_server
-        dns_servers:  "{{ ansible_ip_addresses[0] | default(ansible_host) | default(ansible_ssh_host) }}"
+        ip_address:  "{{ ansible_ip_addresses[0] | default(ansible_host) | default(ansible_ssh_host) }}"
 
     - debug:
-        var: hostvars['windows_ad_server']['dns_servers']
+        var: hostvars['windows_ad_server']['ip_address']
 
 - name: prereqs
   hosts: '*cluster_first:*cluster_other'
@@ -25,12 +22,13 @@
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
   pre_tasks:
-    - debug:
-        var: hostvars['windows_ad_server']['dns_servers']
+    - name: set ip address of windows ad
+      set_fact:
+        dns_servers: hostvars['windows_ad_server']['ip_address']
   roles:
     - domain
     - iis-dsc
-    - role: failover-cluster-common
+    - failover-cluster-common
 
 - name: Create failover cluster on first node
   hosts: '*cluster_first'
