@@ -1,5 +1,20 @@
+- name: get windows ad details
+  hosts: '*windows_ad'
+  vars:
+    ansible_port: 5986
+    ansible_connection: winrm
+    ansible_winrm_transport: credssp
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: set ip address of windows ad
+      set_fact:
+        dns_servers: "{{ private_ip | default(ansible_host) | default(ansible_ssh_host) }}"
+
+    - debug:
+        var: dns_servers
+
 - name: prereqs
-  hosts: all
+  hosts: '*cluster_first:*cluster_other'
   vars:
     ansible_port: 5986
     ansible_connection: winrm

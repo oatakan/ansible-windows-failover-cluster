@@ -1,5 +1,20 @@
+- name: get windows ad details
+  hosts: '*windows_ad'
+  vars:
+    ansible_port: 5986
+    ansible_connection: winrm
+    ansible_winrm_transport: credssp
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+    - name: set ip address of windows ad
+      set_fact:
+        windows_ad_server_ip: "{{ private_ip | default(ansible_host) | default(ansible_ssh_host) }}"
+
+    - debug:
+        var: windows_ad_server_ip
+
 - name: remove computer objects
-  hosts: all
+  hosts: '*cluster_first:*cluster_other'
   gather_facts: yes
   serial: 1
   vars:
@@ -18,7 +33,7 @@
       when: ansible_hostname is defined
 
 - name: remove cluster object
-  hosts: all
+  hosts: '*cluster_first:*cluster_other'
   gather_facts: no
   vars:
     ansible_port: 5986
