@@ -11,7 +11,7 @@
 
     - name: set ip address of windows ad
       set_fact:
-        dns_servers: "{{ private_ip | default(ansible_host) | default(ansible_ssh_host) }}"
+        dns_servers: "{{ ansible_ip_addresses[0] | default(ansible_host) | default(ansible_ssh_host) }}"
 
     - debug:
         var: dns_servers
@@ -23,6 +23,9 @@
     ansible_connection: winrm
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
+  pre_tasks:
+    - debug:
+        var: dns_servers
   roles:
     - domain
     - iis-dsc
