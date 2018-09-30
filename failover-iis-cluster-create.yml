@@ -9,9 +9,10 @@
     - debug:
         var: hostvars[inventory_hostname]
 
-    - name: set ip address of windows ad
-      set_fact:
-        dns_servers: "{{ ansible_ip_addresses[0] | default(ansible_host) | default(ansible_ssh_host) }}"
+    - name: "Artifact URL of test results to Tower Workflows"
+      set_stats:
+        data:
+          dns_servers:  "{{ ansible_ip_addresses[0] | default(ansible_host) | default(ansible_ssh_host) }}"
 
     - debug:
         var: dns_servers
