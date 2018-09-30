@@ -27,5 +27,7 @@
     DomainAdministratorCredential_username: "{{ domain_admin_username }}@{{ dns_domain_name }}"
     DomainAdministratorCredential_password: "{{ domain_admin_password }}"
   delegate_to: "{{ cluster_first_node_ip_address }}"
+  environment:
+    COMPUTERNAME: "{{ ansible_hostname }}"
   ignore_errors: yes
   when: not first_node
