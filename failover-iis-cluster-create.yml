@@ -40,14 +40,6 @@
     ansible_connection: winrm
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
-  pre_tasks:
-    - name: set first node ip
-      add_host:
-        name: cluster_first_node
-        ip_address:  "{{ ansible_ip_addresses[0] | default(ansible_host) | default(ansible_ssh_host) }}"
-
-    - debug:
-        var: hostvars['cluster_first_node']['ip_address']
   roles:
     - role: failover-cluster
       first_node: yes
@@ -62,4 +54,3 @@
   roles:
     - role: failover-cluster
       first_node: no
-      cluster_first_node_ip_address: "{{ hostvars['cluster_first_node']['ip_address'] }}"
