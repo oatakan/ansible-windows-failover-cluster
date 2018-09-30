@@ -24,6 +24,9 @@
     - name: set ip address of windows ad
       set_fact:
         windows_ad_server_ip: "{{ hostvars['windows_ad_server']['ip_address'] }}"
+      when:
+        - "'windows_ad_server' in play_hosts"
+        - hostvars['windows_ad_server']['ip_address'] is defined
   roles:
     - role: ad-computer-registration
       role_action: deregister

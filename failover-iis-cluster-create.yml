@@ -25,6 +25,9 @@
     - name: set ip address of windows ad
       set_fact:
         dns_servers: "{{ hostvars['windows_ad_server']['ip_address'] }}"
+      when:
+        - "'windows_ad_server' in play_hosts"
+        - hostvars['windows_ad_server']['ip_address'] is defined
   roles:
     - domain
     - iis-dsc
