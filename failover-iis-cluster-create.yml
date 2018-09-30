@@ -6,6 +6,9 @@
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
   tasks:
+    - debug:
+        var: hostvars[inventory_hostname]
+
     - name: set ip address of windows ad
       set_fact:
         dns_servers: "{{ private_ip | default(ansible_host) | default(ansible_ssh_host) }}"
