@@ -6,12 +6,10 @@
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
   tasks:
-    - name: set ip address of windows ad
-      set_fact:
-        windows_ad_server_ip: "{{ private_ip | default(ansible_host) | default(ansible_ssh_host) }}"
-
-    - debug:
-        var: windows_ad_server_ip
+    - name: set ad server ip
+      add_host:
+        name: windows_ad_server
+        ip_address:  "{{ ansible_ip_addresses[0] | default(ansible_host) | default(ansible_ssh_host) }}"
 
 - name: remove computer objects
   hosts: '*cluster_first:*cluster_other'
@@ -23,8 +21,9 @@
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
   pre_tasks:
-    - debug:
-        msg: "{{ ansible_hostname | default('') }}"
+    - name: set ip address of windows ad
+      set_fact:
+        windows_ad_server_ip: "{{ hostvars['windows_ad_server']['ip_address'] }}"
   roles:
     - role: ad-computer-registration
       role_action: deregister

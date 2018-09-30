@@ -10,7 +10,14 @@
     resource_name: WindowsFeature
     Name: "{{ item }}"
     Ensure: Present
+  register: install_features
   loop: "{{ required_features }}"
+
+- name: reboot if needed
+  win_reboot:
+  when: item.reboot_required
+  loop: "{{ install_features.results }}"
+  run_once: yes
 
 - name: ensure registry service is running
   win_dsc:
