@@ -24,7 +24,7 @@
   pre_tasks:
     - name: set ip address of windows ad
       set_fact:
-        dns_servers: hostvars['windows_ad_server']['ip_address']
+        dns_servers: "{{ hostvars['windows_ad_server']['ip_address'] }}"
   roles:
     - domain
     - iis-dsc
