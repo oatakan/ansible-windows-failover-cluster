@@ -32,4 +32,5 @@
 
 - name: reboot server if required
   win_reboot:
+    post_reboot_delay: 30
   when: join_domain.reboot_required
