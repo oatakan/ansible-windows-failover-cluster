@@ -2,12 +2,12 @@
 
 - name: add a powershell module
   win_psmodule:
-    name: xActiveDirectory
+    name: ActiveDirectoryDsc
     state: present
 
 - name: remove computer object
   win_dsc:
-    resource_name: xADComputer
+    resource_name: ADComputer
     ComputerName: "{{ computer_name }}"
     Path: '{{ join_ou_path | default("") }}'
     Ensure: Absent
