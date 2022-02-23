@@ -11,24 +11,12 @@ nodes:
     app_name: windows_cluster_demo
     networks:
     - name: mgmt
-      ip: 192.168.1.53
-      netmask: 255.255.255.0
-      gateway: 192.168.1.254
-      domain: home.ad
-      dns_servers:
-      - 192.168.1.254
-      - 8.8.4.4
     domain: home.ad
-    memory: 4096
+    memory: 6144
     cpu: 2
-    template: windows-2019-standard-core
+    template: "{{ win_template_name|default('windows-2019-standard-core') }}"
     snapshot_src: Linked
     linked_clone: True
-    customvalues:
-      - key: app_name
-        value: windows_cluster_demo
-      - key: role
-        value: windows
     customization:
       autologon: True
       autologoncount: 1
@@ -44,24 +32,12 @@ nodes:
     app_name: windows_cluster_demo
     networks:
     - name: mgmt
-      ip: 192.168.1.54
-      netmask: 255.255.255.0
-      gateway: 192.168.1.254
-      domain: home.ad
-      dns_servers:
-      - 192.168.1.254
-      - 8.8.4.4
     domain: home.ad
-    memory: 4096
+    memory: 6144
     cpu: 2
-    template: windows-2019-standard-core
+    template: "{{ win_template_name|default('windows-2019-standard-core') }}"
     snapshot_src: Linked
     linked_clone: True
-    customvalues:
-      - key: app_name
-        value: windows_cluster_demo
-      - key: role
-        value: windows
     customization:
       autologon: True
       autologoncount: 1

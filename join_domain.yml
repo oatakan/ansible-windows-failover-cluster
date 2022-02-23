@@ -1,0 +1,4 @@
+- name: join server to the domain
+  hosts: all
+  roles:
+    - oatakan.windows_cluster.join_domain

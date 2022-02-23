@@ -1,10 +1,5 @@
 - name: get windows ad details
   hosts: '*windows_ad'
-  vars:
-    ansible_port: 5986
-    ansible_connection: winrm
-    ansible_winrm_transport: credssp
-    ansible_winrm_server_cert_validation: ignore
   tasks:
     - name: set ad server ip
       add_host:
@@ -13,13 +8,8 @@
 
 - name: remove computer objects
   hosts: '*cluster_first:*cluster_other'
-  gather_facts: yes
+  gather_facts: true
   serial: 1
-  vars:
-    ansible_port: 5986
-    ansible_connection: winrm
-    ansible_winrm_transport: credssp
-    ansible_winrm_server_cert_validation: ignore
   pre_tasks:
     - name: set ip address of windows ad
       set_fact:
@@ -28,23 +18,29 @@
         - "'windows_ad_server' in play_hosts"
         - hostvars['windows_ad_server']['ip_address'] is defined
   roles:
-    - role: ad-computer-registration
+    - role: oatakan.windows_cluster.ad_computer_registration
       role_action: deregister
       computer_name: "{{ ansible_hostname }}"
       delegate_to: "{{ windows_ad_server_ip }}"
       when: ansible_hostname is defined
+  post_tasks:
+    - block:
+        - name: ensure DNS record is removed if exists
+          win_shell: Get-DnsServerResourceRecord -ZoneName "{{ dns_domain_name }}" -Name "{{ ansible_hostname }}" | Remove-DnsServerResourceRecord -Force -ZoneName "{{ dns_domain_name }}"
+          register: remove_dns_record
+          failed_when: false
+          changed_when: remove_dns_record.rc == 0
+      delegate_to: '{{ windows_ad_server_ip }}'
+      vars:
+        ansible_user: "{{ domain_admin_username }}@{{ dns_domain_name }}"
+        ansible_password: "{{ domain_admin_password }}"
 
 - name: remove cluster object
   hosts: '*cluster_first:*cluster_other'
-  gather_facts: no
-  vars:
-    ansible_port: 5986
-    ansible_connection: winrm
-    ansible_winrm_transport: credssp
-    ansible_winrm_server_cert_validation: ignore
+  gather_facts: false
   roles:
-    - role: ad-computer-registration
+    - role: oatakan.windows_cluster.ad_computer_registration
       role_action: deregister
       computer_name: "{{ cluster_name }}"
       delegate_to: "{{ windows_ad_server_ip }}"
-      run_once: yes
+      run_once: true
