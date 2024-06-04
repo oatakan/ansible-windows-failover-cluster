@@ -5,4 +5,5 @@ collections:
   - name: community.kubernetes
   - name: community.okd
   - name: community.vmware
+  - name: microsoft.ad
   - name: oatakan.windows_cluster
