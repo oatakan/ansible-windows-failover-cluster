@@ -1,6 +1,6 @@
 ---
 - name: Install required DSC modules
-  win_psmodule:
+  community.windows.win_psmodule:
     name: "{{ item }}"
     state: present
   loop:
@@ -8,67 +8,67 @@
     - NetworkingDsc
 
 - name: Install IIS
-  win_dsc:
+  ansible.windows.win_dsc:
     resource_name: windowsfeature
     name: Web-Server
 
 - name: Create site directory structure
-  win_dsc:
+  ansible.windows.win_dsc:
     resource_name: file
     ensure: Present
     type: Directory
     destinationpath: "{{ item.path }}"
-  loop: "{{ iis_sites }}"
+  loop: "{{ iis_dsc_iis_sites }}"
 
 - name: Create IIS Website
-  win_dsc:
+  ansible.windows.win_dsc:
     resource_name: xWebsite
     Ensure: Present
     Name: "{{ item.name }}"
     State: Started
     PhysicalPath: "{{ item.path }}"
     BindingInfo:
-    - Protocol: http
-      Port: 8080
-      IPAddress: '*'
-  loop: "{{ iis_sites }}"
+      - Protocol: http
+        Port: 8080
+        IPAddress: "*"
+  loop: "{{ iis_dsc_iis_sites }}"
   notify:
     - stop iis service
     - start iis service
 
 - name: Open port for site on the firewall
-  win_dsc:
+  ansible.windows.win_dsc:
     resource_name: Firewall
     ensure: Present
-    Name: "iisport{{ item.port }}"
-    Enabled: True
+    Name: iisport{{ item.port }}
+    Enabled: true
     Localport: "{{ item.port }}"
     Action: Allow
     Direction: Inbound
     Protocol: TCP
-  loop: "{{ iis_sites }}"
+  loop: "{{ iis_dsc_iis_sites }}"
   notify:
     - stop iis service
     - start iis service
 
 - name: Template simple web site to iis_site_path as index.html
-  win_template:
-    src: 'index.html.j2'
-    dest: '{{ item.path }}\index.html'
-  loop: "{{ iis_sites }}"
+  ansible.windows.win_template:
+    src: index.html.j2
+    dest: "{{ item.path }}\\index.html"
+  loop: "{{ iis_dsc_iis_sites }}"
 
 - name: proper response from iis is received
-  win_uri:
+  ansible.windows.win_uri:
     url: http://{{ ansible_host }}:8080/
-    return_content: yes
-    validate_certs: no
+    return_content: true
+    validate_certs: false
   register: response
-  until: iis_test_message in response.content
+  until: iis_dsc_iis_test_message in response.content
   retries: 10
   delay: 1
   ignore_errors: true
 
 - name: output url
-  debug:
-    msg: 'application is available at http://{{ ansible_host }}:8080/'
+  ansible.builtin.debug:
+    msg: application is available at http://{{ ansible_host }}:8080/
   when: response is success

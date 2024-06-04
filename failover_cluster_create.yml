@@ -1,16 +1,17 @@
-- name: Failover prereqs
+---
+- name: failover prereqs
   hosts: all
   roles:
     - role: oatakan.windows_cluster.failover_common
 
-- name: Create failover cluster on first node
-  hosts: '*cluster_first'
+- name: create failover cluster on first node
+  hosts: "*cluster_first"
   roles:
     - role: oatakan.windows_cluster.failover
-      first_node: true
+      failover_first_node: true
 
-- name: Join failover clusters on other nodes
-  hosts: '*cluster_other'
+- name: join failover clusters on other nodes
+  hosts: "*cluster_other"
   roles:
     - role: oatakan.windows_cluster.failover
-      first_node: false
+      failover_first_node: false

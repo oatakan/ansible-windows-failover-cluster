@@ -1,5 +1,6 @@
+---
 - name: remove computer object to the domain
   hosts: all
   roles:
     - role: oatakan.windows_cluster.ad_computer_registration
-      role_action: deregister
+      ad_computer_registration_role_action: deregister

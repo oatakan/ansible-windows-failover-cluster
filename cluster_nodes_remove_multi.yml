@@ -1,8 +1,7 @@
 ---
-
 - name: remove servers
   hosts: all
-  gather_facts: False
+  gather_facts: false
   connection: local
   become: false
   vars:

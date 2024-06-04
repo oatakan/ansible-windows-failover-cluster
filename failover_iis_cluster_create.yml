@@ -1,27 +1,26 @@
 ---
-
 - name: prereqs
-  hosts: '*cluster_first:*cluster_other'
+  hosts: "*cluster_first:*cluster_other"
   pre_tasks:
     - name: set ip address of windows ad
-      set_fact:
+      ansible.builtin.set_fact:
         dns_servers: "{{ hostvars['windows_ad_server']['ip_address'] }}"
       when:
         - "'windows_ad_server' in play_hosts"
         - hostvars['windows_ad_server']['ip_address'] is defined
   roles:
     - oatakan.windows_cluster.join_domain
-    - iis-dsc
+    - iis_dsc
     - oatakan.windows_cluster.failover_common
 
 - name: Create failover cluster on first node
-  hosts: '*cluster_first'
+  hosts: "*cluster_first"
   roles:
     - role: oatakan.windows_cluster.failover
-      first_node: true
+      failover_first_node: true
 
 - name: Join failover clusters on other nodes
-  hosts: '*cluster_other'
+  hosts: "*cluster_other"
   roles:
     - role: oatakan.windows_cluster.failover
-      first_node: false
+      failover_first_node: false
