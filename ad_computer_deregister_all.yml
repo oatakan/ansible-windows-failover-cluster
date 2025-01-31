@@ -11,20 +11,31 @@
   hosts: "*cluster_first:*cluster_other"
   gather_facts: true
   serial: 1
-  pre_tasks:
+  tasks:
     - name: set ip address of windows ad
       ansible.builtin.set_fact:
         windows_ad_server_ip: "{{ hostvars['windows_ad_server']['ip_address'] }}"
       when:
         - "'windows_ad_server' in play_hosts"
         - hostvars['windows_ad_server']['ip_address'] is defined
-  roles:
-    - role: oatakan.windows_cluster.ad_computer_registration
-      ad_computer_registration_role_action: deregister
-      ad_computer_registration_computer_name: "{{ ansible_hostname }}"
-      delegate_to: "{{ windows_ad_server_ip }}"
+
+    - name: set default ansible_port
+      ansible.builtin.set_fact:
+        default_ansible_port: "{{ ansible_port }}"
+
+    - name: deregister computer
+      ansible.builtin.include_role:
+        name: oatakan.windows_cluster.ad_computer_registration
+        apply:
+          delegate_to: "{{ windows_ad_server_ip }}"
+          delegate_facts: true
+          vars:
+            ansible_port: "{{ windows_ad_server_port | default(hostvars[inventory_hostname].default_ansible_port) }}"
+      vars:
+        ad_computer_registration_role_action: deregister
+        ad_computer_registration_computer_name: "{{ ansible_hostname }}"
       when: ansible_hostname is defined
-  post_tasks:
+
     - name: ensure DNS record is removed if exists
       ansible.windows.win_shell: >
         Get-DnsServerResourceRecord -ZoneName "{{ dns_domain_name }}"
@@ -37,13 +48,23 @@
       vars:
         ansible_user: "{{ domain_admin_username }}@{{ dns_domain_name }}"
         ansible_password: "{{ domain_admin_password }}"
+        ansible_port: "{{ windows_ad_server_port | default(hostvars[inventory_hostname].default_ansible_port) }}"
+
 
 - name: remove cluster object
   hosts: "*cluster_first:*cluster_other"
   gather_facts: false
-  roles:
-    - role: oatakan.windows_cluster.ad_computer_registration
-      ad_computer_registration_role_action: deregister
-      ad_computer_registration_computer_name: "{{ cluster_name }}"
-      delegate_to: "{{ windows_ad_server_ip }}"
+  strategy: linear
+  tasks:
+    - name: deregister cluster
+      ansible.builtin.include_role:
+        name: oatakan.windows_cluster.ad_computer_registration
+        apply:
+          delegate_to: "{{ windows_ad_server_ip }}"
+          delegate_facts: true
+          vars:
+            ansible_port: "{{ windows_ad_server_port | default(hostvars[inventory_hostname].default_ansible_port) }}"
+      vars:
+        ad_computer_registration_role_action: deregister
+        ad_computer_registration_computer_name: "{{ cluster_name }}"
       run_once: true

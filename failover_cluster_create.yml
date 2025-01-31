@@ -2,7 +2,8 @@
 - name: failover prereqs
   hosts: all
   roles:
-    - role: oatakan.windows_cluster.failover_common
+    - oatakan.windows_cluster.join_domain
+    - oatakan.windows_cluster.failover_common
 
 - name: create failover cluster on first node
   hosts: "*cluster_first"
